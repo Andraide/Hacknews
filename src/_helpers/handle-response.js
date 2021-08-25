@@ -35,6 +35,4 @@ export function handleResponse3(response) {
             }    
 
         });
-
-
 }
