@@ -1,12 +1,13 @@
 
 <p align="center">
-    <img src="AppReview.gif" alt="animated"/>
+    <img src="AppPreview.gif" alt="animated"/>
 </p>
 
 # Hack news app
 
 
 > To install and run the project locally
+
 ...
     npm i && npm start
 ...
