@@ -8,9 +8,9 @@
 
 > To install and run the project locally
 
-...
+```shell
     npm i && npm start
-...
+```
 
 
 > Visit the project online
