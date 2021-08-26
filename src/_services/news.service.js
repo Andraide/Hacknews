@@ -36,7 +36,7 @@ async function setFilter(filter) {
             resolve("filter is saved")
         }catch(err)
         {
-            reject("an error was occurred when seting the filter")
+            reject("an error was occurred seting the filter")
             throw err;
         }
     })

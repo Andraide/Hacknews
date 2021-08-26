@@ -13,8 +13,3 @@ function App() {
 }
 
 export default App;
-
-/*
-////TO AQDD////
-marginTop: DeviceInfo.hasNotch() ? heightPercentage('3') : heightPercentage('0')
-*/
