@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, SafeAreaView, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { Text, View, SafeAreaView, TouchableOpacity, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 const widthScreen = Dimensions.get('window').width
@@ -9,7 +9,8 @@ class Web extends Component {
 
     state = {
         width: widthScreen,
-        height: heightScreen
+        height: heightScreen,
+        loading: true,
     }
 
     componentDidMount() {
@@ -20,13 +21,23 @@ class Web extends Component {
 
         return (
             this.props.route.params.uri ? 
-            <WebView
-                source= {{
-                    uri: this.props.route.params.uri 
-                }}
-                style={{ marginTop: 20 }}
-            >
-            </WebView>
+            <View style={styles.webContainer}>
+                <WebView
+                    onLoad={() => this.setState({ loading: false })}
+                    source= {{
+                        uri: this.props.route.params.uri 
+                    }}
+                    style={{ marginTop: 20 }}
+                >
+                </WebView>
+                {this.state.loading && (
+                    <ActivityIndicator
+                        style={{ position: "absolute", top: this.state.height / 2, left: this.state.width / 2 }}
+                        size="large"
+                    />
+                )}
+            </View>
+            
             : 
             <View style={styles.container}>
                 <Text>Url is not provided</Text>
@@ -38,6 +49,9 @@ class Web extends Component {
 export { Web }
 
 const styles = StyleSheet.create({
+    webContainer: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         flexDirection: 'column',

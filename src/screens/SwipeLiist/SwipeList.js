@@ -19,31 +19,55 @@ if(Platform.OS === 'android') {
 class SwipeList extends React.Component {
   state = {
     news: null,
+    filter: [],
+    isFetching: false,
     width: widthScreen,
     height: heightScreen,
   }
 
   componentDidMount() {
 
+    this.filterSubscribe = newsService.getFilter.subscribe( filter => { 
+      this.setState({ filter })
+      console.log("Filter is set", filter) 
+    })
+
     newsService.getNews().then(( news ) => {
       const { hits } = news
-      //console.log("Keys", Object.keys(hits[0]))
       hits.forEach((x, i) => {
         const { url, story_text, story_title, title } = x
-        //console.log("Urls", url)
-        //console.log("Story text", story_text)
-        //console.log("Store title", story_title)
-        console.log("title", title)
       })
-      this.setState({ news : hits })
+      if(this.state.filter.length)
+      {
+        hits.filter((d) => this.state.filter.indexOf(d.objectID) == -1);
+        this.setState({ news: hits })
+      }
+      else
+      {
+        this.setState({ news : hits })
+      }
     })
+  }
+
+  componentWillUnmount() {
+    this.filterSubscribe.unsubscribe()
+  }
+
+  filterItem = (item) => {
+    let updateFilter = this.state.filter
+    updateFilter.push(item.objectID)
+    const updateNews = this.state.news.filter((d) => d.objectID != item.objectID )
+    
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+    newsService.setFilter(updateFilter).then(() => console.log("Filter set"))
+    this.setState({ news: updateNews, filter: updateFilter });
   }
 
   renderUnderlayLeft = ({ item }) => (
     <Animated.View
       style={[styles.underlayLeft]}
     >
-      <TouchableOpacity onPressOut={() => console.log("Press Out")}>
+      <TouchableOpacity onPressOut={() => this.filterItem(item)}>
         <View style={{ flex: 1, backgroundColor: 'red', width: widthScreen*2.5/10, height: 100, alignItems: 'center', justifyContent: 'center'}}>
           <View style={{ flex: 1/3 }}></View>
           <View style={{ flex: 1/3, alignItems: 'center', justifyContent: 'center' }}>
@@ -55,6 +79,22 @@ class SwipeList extends React.Component {
     </Animated.View>
   )
 
+  onRefresh = () => {
+    this.setState({ isFetching: true })
+    newsService.getNews().then(( news ) => {
+      const { hits } = news
+      if(this.state.filter.length)
+      {
+        hits.filter((d) => this.state.filter.indexOf(d.objectID) == -1);
+        this.setState({ news: hits, isFetching: false })
+      }
+      else
+      {
+        this.setState({ news : hits, isFetching: false })
+      }
+    })
+  }
+
   renderItem = ({ item, index }) => {
 
     const datePosted = moment(item.created_at);
@@ -65,12 +105,11 @@ class SwipeList extends React.Component {
 
     let titleWords = []
     const normalize = item.title ? item.title.length : 0;
-    
 
-    console.log("Length", normalize)
     return (
       <View style={{ backgroundColor:'transparent', flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderBottomWidth: 1, borderColor: 'black' }}>
-        <View style={{ backgroundColor: 'transparent', width: widthScreen, alignItems: 'flex-start', justifyContent: 'flex-end', height: 100, marginLeft: 10 }}>
+        
+        <View style={{ backgroundColor: 'transparent', width: widthScreen - 40, alignItems: 'flex-start', justifyContent: 'flex-end', height: 100, marginLeft: 20, marginRight: 20 }}>
           <View style={{ height: 60, justifyContent: 'flex-end', alignItems: 'flex-start' }}>
             <Text style={styles.textTitle} numberOfLines={2} adjustsFontSizeToFit={true}>{item.title ? item.title : 'Pro hack news'}</Text>
           </View>
@@ -78,6 +117,7 @@ class SwipeList extends React.Component {
             <Text style={styles.textAuthor}>{item.author} - {diffHours ? diffHours + 'h' : diffMinutes + 'min'} </Text>
           </View>
         </View>
+        
         <View style={{ backgroundColor: 'transparent', width: widthScreen, position: 'absolute' }}>
           <SwipeableItem
             key={item.objectID}
@@ -108,6 +148,8 @@ class SwipeList extends React.Component {
                     keyExtractor={(item) => item.objectID}
                     data={this.state.news}
                     renderItem={this.renderItem}
+                    onRefresh={() => this.onRefresh()}
+                    refreshing={this.state.isFetching}
                   />
         }
       </SafeAreaView>
@@ -133,7 +175,7 @@ const styles = StyleSheet.create({
   textTitle: {
     fontWeight: 'bold',
     color: 'black',
-    fontSize: 26
+    fontSize: 24
   },
   textAuthor: {
     color: 'black',

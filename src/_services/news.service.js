@@ -1,8 +1,14 @@
 import { handleResponse3 } from "../_helpers/handle-response";
+import { BehaviorSubject } from "rxjs";
+
+const currentFilterSubject = new BehaviorSubject([]);
 
 export const newsService = {
-    getNews
+    getNews,
+    setFilter,
+    getFilter: currentFilterSubject.asObservable()
 }
+
 
 async function getNews() {
     const url = 'http://hn.algolia.com/api/v1/search_by_date'
@@ -20,4 +26,18 @@ async function getNews() {
                 const { status } = err
                 return Promise.reject(err)
             })
+}
+
+
+async function setFilter(filter) {
+    new Promise(( resolve, reject ) => {
+        try {
+            currentFilterSubject.next(filter)
+            resolve("filter is saved")
+        }catch(err)
+        {
+            reject("an error was occurred when seting the filter")
+            throw err;
+        }
+    })
 }
