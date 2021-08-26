@@ -68,7 +68,7 @@ class SwipeList extends React.Component {
       style={[styles.underlayLeft]}
     >
       <TouchableOpacity onPressOut={() => this.filterItem(item)}>
-        <View style={{ flex: 1, backgroundColor: 'red', width: widthScreen*2.5/10, height: 100, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={{ flex: 1, backgroundColor: 'red', width: widthScreen*2.5/10, height: 100, alignItems: 'center', justifyContent: 'center', borderTopLeftRadius: 8, borderBottomLeftRadius: 8 }}>
           <View style={{ flex: 1/3 }}></View>
           <View style={{ flex: 1/3, alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ backgroundColor: 'transparent', fontSize: 16, color: 'white' }}>Delete</Text>
